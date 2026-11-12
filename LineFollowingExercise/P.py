@@ -27,9 +27,13 @@ while True:
 
     # calibrate turning speed
     if cX != 0:
+
+        # proportional error
         err = len(img)/2 - cX
+        P = err * Kp
+        
         HAL.setV(V)
-        HAL.setW(err * Kp)
+        HAL.setW(P)
 
     WebGUI.showImage(mask)
  
