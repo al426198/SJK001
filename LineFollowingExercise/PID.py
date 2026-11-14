@@ -4,12 +4,12 @@ import Frequency
 import cv2
 
 # standard linear velocity
-V = 5
+V = 6.5
 
 # error constants
-Kp = 0.01
-Kd = 0
-Ki = 0
+Kp = 0.0055
+Kd = 0.00025
+Ki = 0.00000025
 
 # previous error
 prev_err = 0
@@ -45,7 +45,7 @@ while True:
     if cX != 0:
 
         # proportional error
-        err = len(img)/2 - cX
+        err = img.shape[1]/2 - cX
         P = Kp * err
 
         # derivative error

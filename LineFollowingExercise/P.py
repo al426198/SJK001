@@ -19,6 +19,9 @@ while True:
     # find contours
     cont, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    if not cont:
+        break                 # car lost the line
+
     # calculate centroids
     M = cv2.moments(cont[0])
     cX, cY = 0, 0
@@ -29,7 +32,7 @@ while True:
     if cX != 0:
 
         # proportional error
-        err = len(img)/2 - cX
+        err = img.shape[1]/2 - cX
         P = err * Kp
         
         HAL.setV(V)

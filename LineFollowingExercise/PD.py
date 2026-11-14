@@ -40,7 +40,7 @@ while True:
     if cX != 0:
 
         # proportional error
-        err = len(img)/2 - cX
+        err = img.shape[1]/2 - cX
         P = Kp * err
 
         # derivative error
