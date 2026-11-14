@@ -26,6 +26,9 @@ while True:
     # find contours
     cont, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    if not cont:
+        break                # car lost the line
+
     # calculate centroids
     M = cv2.moments(cont[0])
     cX, cY = 0, 0

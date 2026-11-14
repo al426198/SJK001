@@ -4,18 +4,21 @@ import Frequency
 import cv2
 
 # standard linear velocity
-V = 4
+V = 5
 
 # error constants
-Kp = 0.0055
-Kd = 0.0035
-Ki = 0.0001
+Kp = 0.01
+Kd = 0
+Ki = 0
 
 # previous error
 prev_err = 0
 
 # accumulated error
 acc_err = 0
+
+avg_err = 0
+count = 0
 
 while True:
     img = HAL.getImage()      # fetches image
@@ -26,6 +29,9 @@ while True:
 
     # find contours
     cont, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    if not cont:
+        break                # car lost the line
 
     # calculate centroids
     M = cv2.moments(cont[0])
@@ -52,6 +58,12 @@ while True:
 
         HAL.setV(V)
         HAL.setW(P+D+I)
+
+        # CMAE (cumulative moving average error)
+        count += 1
+        avg_err += err - avg_err/count
+        if count % 100 == 0:
+            print(f"CMAE at it. {count}: {avg_err}")
 
         # update error
         prev_err = err
