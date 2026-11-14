@@ -13,13 +13,11 @@ Each controller repeatedly obtains a camera frame with `HAL.getImage()` and:
 
 The controllers differ in how they turn:
 
-- **`P.py` — proportional:** steering is `Kp * error`. The current settings are `V = 4` and `Kp = 0.005`.
-- **`PD.py` — proportional-derivative:** adds a term based on the change in error between frames. The current settings are `V = 4`, `Kp = 0.0055`, and `Kd = 0.0035`.
-- **`PID.py` — proportional-integral-derivative:** includes proportional, derivative, and accumulated-error terms. The current settings are `V = 5`, `Kp = 0.01`, `Kd = 0`, and `Ki = 0`; therefore, as checked in, it behaves as a proportional controller. It also prints a cumulative moving-average error (CMAE) every 100 valid updates.
+- **`P.py` — proportional:** steering is `Kp * error`.
+- **`PD.py` — proportional-derivative:** adds a term based on the change in error between frames.
+- **`PID.py` — proportional-integral-derivative:** includes proportional, derivative, and accumulated-error terms. It also prints a cumulative moving-average error (CMAE) every 100 valid updates
 
-In all three scripts, the error is calculated as `len(img) / 2 - cX`. In NumPy images `len(img)` is the image height, while `cX` is a horizontal coordinate; for a general camera resolution, the horizontal center should instead be based on `img.shape[1] / 2`. The scripts also use the first contour returned by OpenCV rather than selecting the largest contour, so noise or multiple detected regions can affect tracking.
-
-`PD.py` and `PID.py` stop their loop when no contour is found. `P.py` indexes the first contour without checking whether any were found, so it may fail if the track leaves the camera view. `Frequency` is imported by the scripts but is not used.
+All scripts stop when no contour is found, in case the car lost track of the line.
 
 ## Running
 
@@ -44,7 +42,13 @@ The `images/` directory contains example screenshots from the exercise and contr
 
 ## Performance measurements
 
-`log.csv` records tested controller parameters and lap times. `DNF` means the run did not finish. Of the recorded successful runs, the shortest lap was **179.03 s** with `V = 6`, `Kp = 0.005`, `Kd = 0.000025`, and `Ki = 0.0000001`. The results show that increasing speed alone did not guarantee completion; tuning the steering gains together with speed mattered in these trials.
+`log.csv` records tested controller parameters and lap times. `DNF` means the run did not finish. Of the recorded successful runs, the shortest lap was **159.00 s** with `V = 6.5`, `Kp = 0.0055`, `Kd = 0.000025`, and `Ki = 0.00000025`. 
+
+The tuning process went as follows:
+1. First, use only the P controller. Try to complete a lap with the highest speed possible.
+2. Then, add the derivative controller. Try to complete a lap again keeping that speed.
+3. Finally, add the integral controller. Build up speed progressively again.
+4. Try to finetune the hyperparameters to achieve the minimum lap time possible.
 
 | V | Kp | Kd | Ki | Lap time (s) |
 | ---: | ---: | ---: | ---: | ---: |
@@ -60,10 +64,10 @@ The `images/` directory contains example screenshots from the exercise and contr
 | 2.5 | 0.005 | 0.0025 | 0.000005 | 465.36 |
 | 4 | 0.005 | 0.0025 | 0.000005 | 257.11 |
 | 6 | 0.005 | 0.0005 | 0.0000005 | DNF |
-| 6 | 0.005 | 0.000025 | 0.0000001 | **179.03** |
+| 6.5 | 0.0055 | 0.000025 | 0.00000025 | **159.00** |
 | 6 | 0.00055 | 0.000025 | 0.0000001 | 203.46 |
 
-These are recorded experiment results, not a guarantee of repeatable performance. The best logged parameter set does not match the constants currently checked into `P.py`, `PD.py`, or `PID.py`; use the values in `log.csv` when reproducing that particular trial.
+These are recorded experiment results, not a guarantee of repeatable performance.
 
 ## Repository contents
 
